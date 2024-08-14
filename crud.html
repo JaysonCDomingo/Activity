@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple CRUD App</title>
+    <style>
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        form {
+            width: 50%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+        }
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center;">Simple CRUD App</h2>
+
+    <form id="userForm">
+        <input type="text" id="name" placeholder="Enter Name" required>
+        <input type="number" id="age" placeholder="Enter Age" required>
+        <button type="submit">Create/Update User</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            <!-- Users will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        let users = [];
+        let editingUserId = null;
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+
+            if (editingUserId === null) {
+                // Create user
+                const newUser = { id: Date.now(), name, age };
+                users.push(newUser);
+            } else {
+                // Update user
+                const user = users.find(u => u.id === editingUserId);
+                user.name = name;
+                user.age = age;
+                editingUserId = null;
+            }
+
+            document.getElementById('userForm').reset();
+            renderTable();
+        });
+
+        function renderTable() {
+            const userTableBody = document.getElementById('userTableBody');
+            userTableBody.innerHTML = '';
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.age}</td>
+                    <td>
+                        <button onclick="editUser(${user.id})">Edit</button>
+                        <button onclick="deleteUser(${user.id})">Delete</button>
+                    </td>
+                `;
+                userTableBody.appendChild(tr);
+            });
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            document.getElementById('name').value = user.name;
+            document.getElementById('age').value = user.age;
+            editingUserId = user.id;
+        }
+
+        function deleteUser(userId) {
+            users = users.filter(u => u.id !== userId);
+            renderTable();
+        }
+    </script>
+</body>
+</html>
